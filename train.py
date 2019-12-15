@@ -21,7 +21,7 @@ from utils.eval_tool import eval_detection_voc
 import resource
 
 rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
-resource.setrlimit(resource.RLIMIT_NOFILE, (20480, rlimit[1]))
+resource.setrlimit(resource.RLIMIT_NOFILE, (4000, rlimit[1]))
 
 matplotlib.use('agg')
 
@@ -54,9 +54,7 @@ def train(**kwargs):
     print('load data')
     dataloader = data_.DataLoader(dataset, \
                                   batch_size=1, \
-                                  shuffle=True, \
-                                  # pin_memory=True,
-                                  num_workers=opt.num_workers)
+                                  shuffle=True)
     testset = TestDataset(opt)
     test_dataloader = data_.DataLoader(testset,
                                        batch_size=1,
@@ -75,7 +73,8 @@ def train(**kwargs):
     lr_ = opt.lr
     for epoch in range(opt.epoch):
         trainer.reset_meters()
-        for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
+        #for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
+        for ii, (img, bbox_, label_, scale) in enumerate(dataloader):
             scale = at.scalar(scale)
             img, bbox, label = img.cuda().float(), bbox_.cuda(), label_.cuda()
             trainer.train_step(img, bbox, label, scale)
